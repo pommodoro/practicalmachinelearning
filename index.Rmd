@@ -5,18 +5,56 @@ date: "December 15, 2015"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+The first and perhaps most important portion of this project was cleaning the dataset. The data was collected using a moving window of varying time-length (between .5 and 2 seconds). Several variables calculated statistical parameters for each window like skewness, standard deviation. Therefore each window had variables that were not continuous and instead took on a single value. These were manually removed by observation and preforming a column bind of all columns that did not have empty values (these were neither NA nor NULL, which complicated automation).
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Similarly, identifier variables were discarded since we wanted to focus on numeric variables that could, for any window, any participant and at any point of the exercise, correctly predict the kind of exercise. It was particularly important to perform this imputation since the classe was ordered, making the index variable a very strong predictor, but one which would only work in the training data set. This eliminated columns one through seven.
+
+
+ <http://rmarkdown.rstudio.com>.
+
+```{r echo=FALSE}
+library(caret)
+library(randomForest)
+data<-read.csv(file="pml-training.csv")
+inTrain<-createDataPartition(y=data$classe,p=0.60,list=FALSE)
+training<-data[inTrain,]
+testing<-data[-inTrain,]
+validation<-read.csv(file="pml-testing.csv")
+
+training<-training[,8:160]
+training<-training[,colSums(is.na(training))==0]
+training1<-cbind(training[,1:4],training[14:35],training[42:44],training[54:66],training[76:86])
+
+testing<-testing[,8:160]
+testing<-testing[,colSums(is.na(testing))==0]
+testing1<-cbind(testing[,1:4],testing[14:35],testing[42:44],testing[54:66],testing[76:86])
+
+colnames(training1)
+
+```
+
+I then divided the data into training and testing partitions in a 60:40 proportion.
+```{r}
+inTrain<-createDataPartition(y=data$classe,p=0.60,list=FALSE)
+training<-data[inTrain,]
+testing<-data[-inTrain,]
+```
+
+After having cleaned up the data, we used the randomForest function to fit the model.
+```{r}
+modFit<-randomForest(y=training1$classe,x=training1)
+```
+
+By using the predict function, I produced a measure of model accuracy for the testing portion of the dataset. The results were quite satisfactory, correctly predicting 100% of the cases.
+
 
 ```{r}
-summary(cars)
+
+pred <- predict(modFit,testing1)
+testing1$predRight <- pred==testing1$classe
+table(pred,testing1$classe)
+
 ```
 
-You can also embed plots, for example:
 
-```{r, echo=FALSE}
-plot(cars)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
