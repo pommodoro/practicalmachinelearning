@@ -35,26 +35,39 @@ colnames(training1)
 
 I then divided the data into training and testing partitions in a 60:40 proportion.
 ```{r}
+set.seed(1990)
 inTrain<-createDataPartition(y=data$classe,p=0.60,list=FALSE)
 training<-data[inTrain,]
 testing<-data[-inTrain,]
 ```
 
-After having cleaned up the data, we used the randomForest function to fit the model.
-```{r}
-modFit<-randomForest(y=training1$classe,x=training1)
+After having cleaned up the data, we used the randomForest function to fit the model. I was also careful to train without the variable "classe", since that is the one we are interested in predicting.
+
+```{r cache=TRUE}
+modFit<-randomForest(y=training1$classe,x=training1[,-53])
+modFit
 ```
 
-By using the predict function, I produced a measure of model accuracy for the testing portion of the dataset. The results were quite satisfactory, correctly predicting 100% of the cases.
+By using the predict function, I produced a measure of model accuracy for the testing portion of the dataset. The results were quite satisfactory, wih an in-sample error rate of 0.32% and an estimated out of sample error rate of 0.61%
 
 
-```{r}
+```{r cache=TRUE}
 
-pred <- predict(modFit,testing1)
+pred <- predict(modFit,testing1[,-53])
 testing1$predRight <- pred==testing1$classe
 table(pred,testing1$classe)
 
 ```
 
+We can expect the accuracy in the validation data to drop, which we can estimate to as p^20 if p is my probability of correctly predicting a case (out-of-sample), which we found to be 99.39%, then p^20 equal to 88.48%. 
 
+Finally, we perform a prediction using the supplied testing cases in the file "pml-testing.csv"
 
+```{r}
+
+validation<-validation[,8:160]
+validation<-validation[,colSums(is.na(validation))==0]
+pred <- predict(modFit,validation[,-53])
+pred
+
+```
