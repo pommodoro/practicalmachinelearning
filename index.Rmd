@@ -7,13 +7,15 @@ output: html_document
 
 The first and perhaps most important portion of this project was cleaning the dataset. The data was collected using a moving window of varying time-length (between .5 and 2 seconds). Several variables calculated statistical parameters for each window like skewness, standard deviation. Therefore each window had variables that were not continuous and instead took on a single value. These were manually removed by observation and preforming a column bind of all columns that did not have empty values (these were neither NA nor NULL, which complicated automation).
 
-Similarly, identifier variables were discarded since we wanted to focus on numeric variables that could, for any window, any participant and at any point of the exercise, correctly predict the kind of exercise. It was particularly important to perform this imputation since the classe was ordered, making the index variable a very strong predictor, but one which would only work in the training data set. This eliminated columns one through seven.
+Similarly, identifier variables were discarded since we wanted to focus on numeric variables that could, for any window, any participant and at any point of the exercise, correctly predict the kind of exercise. It was particularly important to perform this imputation since the classe was ordered, making the index variable a very strong predictor, but one which would only work in the training data set. This eliminated columns one through seven. I then divided the data into a 60:40 proportion partition for training and testing.
 
 
-```{r echo=FALSE}
+```{r cache=TRUE}
 library(caret)
 library(randomForest)
 data<-read.csv(file="pml-training.csv")
+
+set.seed(1990)
 inTrain<-createDataPartition(y=data$classe,p=0.60,list=FALSE)
 training<-data[inTrain,]
 testing<-data[-inTrain,]
@@ -27,18 +29,12 @@ testing<-testing[,8:160]
 testing<-testing[,colSums(is.na(testing))==0]
 testing1<-cbind(testing[,1:4],testing[14:35],testing[42:44],testing[54:66],testing[76:86])
 
+validation<-validation[,8:160]
+validation<-validation[,colSums(is.na(validation))==0]
+validation$problem_id<-as.factor(validation$problem_id)
+
 colnames(training1)
 
-```
-
-I then divided the data into training and testing partitions in a 60:40 proportion.
-```{r}
-
-set.seed(1990)
-
-inTrain<-createDataPartition(y=data$classe,p=0.60,list=FALSE)
-training<-data[inTrain,]
-testing<-data[-inTrain,]
 ```
 
 
@@ -49,7 +45,7 @@ modFit<-randomForest(y=training1$classe,x=training1[,-53])
 modFit
 ```
 
-By using the predict function, I produced a measure of model accuracy for the testing portion of the dataset. The results were quite satisfactory, wih an in-sample error rate of 0.32% and an estimated out of sample error rate of 0.61%
+The results were quite satisfactory, wih an in-sample error rate of about 0.32% and an estimated out of sample error rate of 0.61%
 
 
 ```{r cache=TRUE}
@@ -64,29 +60,8 @@ We can expect the accuracy in the validation data to drop, which we can estimate
 
 Finally, we perform a prediction using the supplied testing cases in the file "pml-testing.csv"
 
-```{r}
-
-validation<-validation[,8:160]
-validation<-validation[,colSums(is.na(validation))==0]
+```{r cache=TRUE}
 pred <- predict(modFit,validation[,-53])
 pred
 
 ```
-
-After having cleaned up the data, we used the randomForest function to fit the model.
-```{r}
-modFit<-randomForest(y=training1$classe,x=training1)
-```
-
-By using the predict function, I produced a measure of model accuracy for the testing portion of the dataset. The results were quite satisfactory, correctly predicting 100% of the cases.
-
-
-```{r}
-
-pred <- predict(modFit,testing1)
-testing1$predRight <- pred==testing1$classe
-table(pred,testing1$classe)
-
-```
-
-
