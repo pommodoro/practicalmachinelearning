@@ -88,6 +88,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 ## [52] &quot;magnet_forearm_z&quot;     &quot;classe&quot;</code></pre>
 <p>I then divided the data into training and testing partitions in a 60:40 proportion.</p>
 <pre class="r"><code>set.seed(1990)
+
 inTrain&lt;-createDataPartition(y=data$classe,p=0.60,list=FALSE)
 training&lt;-data[inTrain,]
 testing&lt;-data[-inTrain,]</code></pre>
@@ -129,6 +130,19 @@ pred</code></pre>
 <pre><code>##  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
 ##  B  A  B  A  A  E  D  B  A  A  B  C  B  A  E  E  A  B  B  B 
 ## Levels: A B C D E</code></pre>
+<p>After having cleaned up the data, we used the randomForest function to fit the model.</p>
+<pre class="r"><code>modFit&lt;-randomForest(y=training1$classe,x=training1)</code></pre>
+<p>By using the predict function, I produced a measure of model accuracy for the testing portion of the dataset. The results were quite satisfactory, correctly predicting 100% of the cases.</p>
+<pre class="r"><code>pred &lt;- predict(modFit,testing1)
+testing1$predRight &lt;- pred==testing1$classe
+table(pred,testing1$classe)</code></pre>
+<pre><code>##     
+## pred    A    B    C    D    E
+##    A 2232    0    0    0    0
+##    B    0 1518    0    0    0
+##    C    0    0 1368    0    0
+##    D    0    0    0 1286    0
+##    E    0    0    0    0 1442</code></pre>
 
 
 </div>

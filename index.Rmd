@@ -33,11 +33,14 @@ colnames(training1)
 
 I then divided the data into training and testing partitions in a 60:40 proportion.
 ```{r}
+
 set.seed(1990)
+
 inTrain<-createDataPartition(y=data$classe,p=0.60,list=FALSE)
 training<-data[inTrain,]
 testing<-data[-inTrain,]
 ```
+
 
 After having cleaned up the data, we used the randomForest function to fit the model. I was also careful to train without the variable "classe", since that is the one we are interested in predicting.
 
@@ -69,3 +72,21 @@ pred <- predict(modFit,validation[,-53])
 pred
 
 ```
+
+After having cleaned up the data, we used the randomForest function to fit the model.
+```{r}
+modFit<-randomForest(y=training1$classe,x=training1)
+```
+
+By using the predict function, I produced a measure of model accuracy for the testing portion of the dataset. The results were quite satisfactory, correctly predicting 100% of the cases.
+
+
+```{r}
+
+pred <- predict(modFit,testing1)
+testing1$predRight <- pred==testing1$classe
+table(pred,testing1$classe)
+
+```
+
+
