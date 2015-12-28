@@ -10,8 +10,6 @@ The first and perhaps most important portion of this project was cleaning the da
 Similarly, identifier variables were discarded since we wanted to focus on numeric variables that could, for any window, any participant and at any point of the exercise, correctly predict the kind of exercise. It was particularly important to perform this imputation since the classe was ordered, making the index variable a very strong predictor, but one which would only work in the training data set. This eliminated columns one through seven.
 
 
- <http://rmarkdown.rstudio.com>.
-
 ```{r echo=FALSE}
 library(caret)
 library(randomForest)

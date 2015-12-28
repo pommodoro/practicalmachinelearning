@@ -61,7 +61,6 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 
 <p>The first and perhaps most important portion of this project was cleaning the dataset. The data was collected using a moving window of varying time-length (between .5 and 2 seconds). Several variables calculated statistical parameters for each window like skewness, standard deviation. Therefore each window had variables that were not continuous and instead took on a single value. These were manually removed by observation and preforming a column bind of all columns that did not have empty values (these were neither NA nor NULL, which complicated automation).</p>
 <p>Similarly, identifier variables were discarded since we wanted to focus on numeric variables that could, for any window, any participant and at any point of the exercise, correctly predict the kind of exercise. It was particularly important to perform this imputation since the classe was ordered, making the index variable a very strong predictor, but one which would only work in the training data set. This eliminated columns one through seven.</p>
-<p><a href="http://rmarkdown.rstudio.com">http://rmarkdown.rstudio.com</a>.</p>
 <pre><code>## Warning: package 'caret' was built under R version 3.1.3</code></pre>
 <pre><code>## Loading required package: lattice
 ## Loading required package: ggplot2</code></pre>
